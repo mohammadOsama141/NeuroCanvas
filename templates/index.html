@@ -4,14 +4,33 @@
     <meta charset="UTF-8">
     <title>Sammy boyy</title>
 </head>
+
+<body>
+<img id="result-image" src="{{ url_for('static', filename=file) }}" alt="Result">
+
+
+<label for="dilation">Dilation:</label>
+<input type="number" id="dilation" name="dilation" value="5" min="1" onchange="setDilation(this.value)">
+
 <script>
+    var mode = 'add'; // by default mode
+    var dilation = 5;
+
+
+    function setMode(newMode) {
+        mode = newMode;
+    }
+    function setDilation(newDilation) {
+        dilation = newDilation;
+    }
+
     function getMousePosition(event) {
         var x = event.clientX;
         var y = event.clientY;
         var coor = "X coords: " + x + ", Y coords: " + y;
         console.log(coor);
 
-        var url = "/run_model?x=" + x + "&y=" + y;
+        var url = '/' + mode + '_segment?x=' + x + '&y=' + y + '&dilation=' + dilation;
 
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
@@ -22,8 +41,6 @@
             if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
                 var response = JSON.parse(xhr.responseText);
                 var imagePath = response.image_path;
-
-                // Update the image source in the HTML with the new path
                 document.getElementById('result-image').src = imagePath + '?' + new Date().getTime();
             }
         };
@@ -33,8 +50,10 @@
         document.body.addEventListener("click", getMousePosition);
     });
 </script>
-<body>
-<!--show image-->
-<img id="result-image" src="{{ url_for('static', filename=file) }}" alt="Result">
+    <!-- buttons for add and remove mask setting mode -->
+    <button onclick="setMode('add')">Add Segment</button>
+    <button onclick="setMode('remove')">Remove Segment</button>
+
 </body>
 </html>
+
