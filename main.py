@@ -13,13 +13,13 @@ app = Flask(__name__)
 torch.set_grad_enabled(False)
 
 device = 'cuda' if torch.cuda.is_available() else "cpu"
-#print("\n", device, "\n" )
+# print("\n", device, "\n" )
 
 model = SamModel.from_pretrained("facebook/sam-vit-base")
 model.to(device)
 processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
 
-combinedMask= None
+combinedMask = None
 
 
 def return_mask(img, input_points, dilation=5):
@@ -41,8 +41,9 @@ raw_image = Image.open('static/img.png').convert("RGB")
 def index():
     return render_template('index.html', file='img.png')
 
-#add mask feature
-@app.route('/add_segment', methods=['GET']) 
+
+# add mask feature
+@app.route('/add_segment', methods=['GET'])
 def add_segment():
     global combinedMask
     x = request.args.get('x')
@@ -65,7 +66,7 @@ def add_segment():
     return jsonify({'image_path': '/static/result.png'})
 
 
-#removing feature
+# removing feature
 @app.route('/remove_segment', methods=['GET'])
 def remove_segment():
     global combinedMask
@@ -73,7 +74,7 @@ def remove_segment():
     y = request.args.get('y')
     mask_to_remove = return_mask(raw_image, [[[x, y]]])
 
-    combinedMask = np.logical_and(combinedMask, np.logical_not(mask_to_remove)) #remove segment from whole combineMask
+    combinedMask = np.logical_and(combinedMask, np.logical_not(mask_to_remove))  # remove segment from whole combineMask
 
     orig_img = np.array(raw_image)
     combinedMask_display = np.array(combinedMask, dtype=np.uint8) * 1
@@ -84,14 +85,12 @@ def remove_segment():
     cv2.imwrite('static/result.png', final_img)
     return jsonify({'image_path': '/static/result.png'})
 
+
 def Dilation(mask, dilationVal):
     if mask is not None and mask.dtype != np.uint8:
         mask = mask.astype(np.uint8)
     kernel = np.ones((dilationVal, dilationVal), np.uint8)
     return cv2.dilate(mask, kernel, iterations=1) if mask is not None else None
-
-
-
 
 
 if __name__ == '__main__':
