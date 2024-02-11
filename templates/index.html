@@ -6,13 +6,19 @@
 </head>
 
 <body>
-<img id="result-image" src="{{ url_for('static', filename=file) }}" alt="Result">
+<img id="result-image"  alt="Result">
 
 
 <label for="dilation">Dilation:</label>
 <input type="number" id="dilation" name="dilation" value="5" min="1" onchange="setDilation(this.value)">
 
 <script>
+    var filePath = "{{ request.headers.file }}";
+
+    // Set the src attribute of the image tag
+    var imgElement = document.getElementById("result-image");
+    imgElement.src = filePath;
+
     var mode = 'add'; // by default mode
     var dilation = 5;
 
